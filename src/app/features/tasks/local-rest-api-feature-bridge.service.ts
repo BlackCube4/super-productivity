@@ -14,9 +14,10 @@ import { TaskService } from './task.service';
 import { withRemindAtForDueChange } from './util/with-remind-at-for-due-change';
 
 /**
- * Task writes the Local REST API task routes need that `TaskService` doesn't
- * offer as such: literal subtask titles, back-filled time, project moves
- * without the confirm dialog and due-time changes that move the reminder.
+ * Task operations the Local REST API task routes need that `TaskService`
+ * doesn't offer as such: the issue link lookup, literal subtask titles,
+ * back-filled time, project moves without the confirm dialog and due-time
+ * changes that move the reminder.
  */
 @Injectable({ providedIn: 'root' })
 export class LocalRestApiFeatureBridgeService {

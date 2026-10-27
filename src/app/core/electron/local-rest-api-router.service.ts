@@ -23,10 +23,13 @@ const getQueryParam = (
 
 /**
  * Answers the Local REST API requests the main process forwards to the
- * renderer. The routes themselves live with the features they expose and are
- * provided as `LOCAL_REST_API_FEATURE_ROUTES`; this service holds back
- * requests until the data has loaded, asks the routes in order, and turns an
- * unanswered request into a 404 and a thrown error into a 500.
+ * renderer. The routes live with the features they expose and are provided as
+ * `LOCAL_REST_API_FEATURE_ROUTES`; this service holds back requests until the
+ * data has loaded, asks the routes in order, and turns an unanswered request
+ * into a 404 and a thrown error into a 500.
+ *
+ * GET /projects and GET /tags are the exception: they are still served here,
+ * which is what the two grandfathered features/ imports above are for.
  */
 @Injectable({
   providedIn: 'root',
@@ -34,8 +37,7 @@ const getQueryParam = (
 export class LocalRestApiRouterService {
   private readonly _projectService = inject(ProjectService);
   private readonly _tagService = inject(TagService);
-  private readonly _featureRoutes =
-    inject(LOCAL_REST_API_FEATURE_ROUTES, { optional: true }) ?? [];
+  private readonly _featureRoutes = inject(LOCAL_REST_API_FEATURE_ROUTES);
   // The main process only knows the renderer has booted, which happens before
   // the data is loaded — answering then would serve an empty task list as if it
   // were the user's data, and let a write land on top of half-hydrated state.
