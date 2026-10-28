@@ -35,9 +35,10 @@ import { ScheduleExternalDragService } from '../../features/schedule/schedule-we
 import { Log } from '../../core/log';
 import { TODAY_TAG } from '../../features/tag/tag.const';
 import { DragDropRegistry } from '@angular/cdk/drag-drop';
-import { CdkTrapFocus } from '@angular/cdk/a11y';
+import { CdkTrapFocus, FocusMonitor } from '@angular/cdk/a11y';
 import { WorkContextType } from '../../features/work-context/work-context.model';
 import { HISTORY_STATE } from '../../app.constants';
+import { isTouchActive } from '../../util/input-intent';
 import { SwipeDirective } from '../../ui/swipe-gesture/swipe.directive';
 import { DataInitStateService } from '../../core/data-init/data-init-state.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -92,6 +93,7 @@ export class MagicSideNavComponent implements OnDestroy, AfterViewInit {
   private _dragDropRegistry = inject(DragDropRegistry);
   private _multiDrag = inject(TaskMultiDragService);
   private _externalDragService = inject(ScheduleExternalDragService);
+  private readonly _focusMonitor = inject(FocusMonitor);
   private _pointerUpSubscription: Subscription | null = null;
 
   // Use service's computed signal directly
@@ -345,6 +347,34 @@ export class MagicSideNavComponent implements OnDestroy, AfterViewInit {
         this.swipeEnabled.set(true);
       }, 300); // Match animation duration (225ms) + buffer
     }
+
+    if (!isOpening && this.isMobile() && isTouchActive()) {
+      this._restoreTouchFocusOrigin();
+    }
+  }
+
+  /**
+   * Re-announce the restored focus as touch, so the trigger does not keep a
+   * focus ring after the menu closes.
+   *
+   * `cdkTrapFocusAutoCapture` returns focus to whatever was focused when the
+   * trap opened, and a bare `focus()` call reaches the FocusMonitor as origin
+   * `program`. Material paints a persistent 12% state layer for
+   * `cdk-program-focused`, so the menu button stayed visibly highlighted after
+   * a tap. Only the origin is wrong here: returning focus to the trigger is
+   * what a keyboard or screen reader user needs, so the focus itself stays put
+   * and this runs only while touch is the active input.
+   *
+   * Deferred because the trap restores focus after this toggle returns; read
+   * at that point `document.activeElement` is still the close button.
+   */
+  private _restoreTouchFocusOrigin(): void {
+    window.setTimeout(() => {
+      const el = document.activeElement;
+      if (el instanceof HTMLElement && el !== document.body) {
+        this._focusMonitor.focusVia(el, 'touch');
+      }
+    });
   }
 
   onMobileNavSwipeRight(): void {
