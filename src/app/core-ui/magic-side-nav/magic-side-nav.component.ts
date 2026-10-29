@@ -186,6 +186,24 @@ export class MagicSideNavComponent implements OnDestroy, AfterViewInit {
       this.syncMobileNavHistory(this.showMobileMenuOverlay());
     });
 
+    // Drop the focus ring on the menu button whichever way the menu closed.
+    // Tapping a destination (`onItemClick`) and a route change both set the
+    // signal directly instead of going through `toggleMobileNav()`, so this
+    // watches the open to closed transition rather than a single caller.
+    let wasMobileNavOpen = this.showMobileMenuOverlay();
+    effect(() => {
+      const isOpen = this.showMobileMenuOverlay();
+      const wasOpen = wasMobileNavOpen;
+      wasMobileNavOpen = isOpen;
+      if (wasOpen && !isOpen) {
+        untracked(() => {
+          if (this.isMobile() && isTouchActive()) {
+            this._restoreTouchFocusOrigin();
+          }
+        });
+      }
+    });
+
     effect(() => {
       const isFullMode = this.isFullMode();
       if (!this.isMobile()) {
@@ -347,10 +365,6 @@ export class MagicSideNavComponent implements OnDestroy, AfterViewInit {
         this.swipeEnabled.set(true);
       }, 300); // Match animation duration (225ms) + buffer
     }
-
-    if (!isOpening && this.isMobile() && isTouchActive()) {
-      this._restoreTouchFocusOrigin();
-    }
   }
 
   /**
@@ -365,8 +379,8 @@ export class MagicSideNavComponent implements OnDestroy, AfterViewInit {
    * what a keyboard or screen reader user needs, so the focus itself stays put
    * and this runs only while touch is the active input.
    *
-   * Deferred because the trap restores focus after this toggle returns; read
-   * at that point `document.activeElement` is still the close button.
+   * Deferred because the trap restores focus only after the overlay is torn
+   * down; read any earlier, `document.activeElement` is still inside the menu.
    */
   private _restoreTouchFocusOrigin(): void {
     window.setTimeout(() => {
