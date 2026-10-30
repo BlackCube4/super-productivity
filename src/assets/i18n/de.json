@@ -1748,7 +1748,7 @@
         "TITLE": "Grundeinstellungen"
       },
       "S": {
-        "ARCHIVE_CLEANUP_FAILED": "Bereinigung archivierter Daten für gelöschten Tag fehlgeschlagen",
+        "ARCHIVE_CLEANUP_FAILED": "Bereinigung archivierter Daten für gelöschtes Tag fehlgeschlagen",
         "UPDATED": "Die Tag-Einstellungen wurden aktualisiert"
       },
       "TTL": {
@@ -2141,7 +2141,7 @@
         "ADVANCED_CFG": "Erweiterte Konfiguration",
         "EDIT": "Bearbeite Einstellung der wiederkehrenden Aufgabe",
         "HEATMAP_LABEL": "Aktivität",
-        "TAG_LABEL": "Stichwörter zum Hinzufügen",
+        "TAG_LABEL": "Tags zum Hinzufügen",
         "TIME_SPENT_THIS_MONTH": "Diesen Monat",
         "TIME_SPENT_THIS_WEEK": "Diese Woche",
         "TIME_SPENT_TOTAL": "Gesamt"
